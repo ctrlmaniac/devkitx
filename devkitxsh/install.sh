@@ -1,113 +1,146 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Colors for output
+# DevKitXSH Installer Script
+#
+# This script bootstraps the DevKitXSH environment by:
+#   1. Creating necessary config directories and files under ~/.config/devkitxsh
+#   2. Exporting environment variables to shell profiles (~/.bashrc or ~/.zshrc)
+#   3. Installing the CLI executable as `devkitx`
+#   4. Registering the default `logx` module
+#   5. Sourcing the module loader and configs for immediate use
+#
+# Author: ctrlmaniac
+# License: MIT
+
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+ORANGE='\033[0;33m'
 NC='\033[0m' # No Color
 
-log_info() { echo -e "${YELLOW}[INFO]${NC} $*"; }
-log_success() { echo -e "${GREEN}[OK]${NC} $*"; }
-log_error() { echo -e "${RED}[ERR]${NC} $*" >&2; }
+log_info() { printf "${YELLOW}[INFO]${NC} %s\n" "$*"; }
+log_success() { printf "${GREEN}[OK]${NC} %s\n" "$*"; }
+log_warn() { printf "${ORANGE}[WARN]${NC} %s\n" "$*"; }
+log_error() { printf "${RED}[ERR]${NC} %s\n" "$*" >&2; }
 
-# Paths
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-CLI_SH_DISPATCH="${ROOT_DIR}/bin/cli-sh/dispatch.sh"
-# CLI_TS_DIR="${ROOT_DIR}/apps/devkitx"
+# Path definitions
+export DEVKITXSH_DIR="${DEVKITXSH_DIR:-$HOME/.devkitxsh}"
+export DEVKITXSH_MOD_DIR="${DEVKITXSH_MOD_DIR:-$DEVKITXSH_DIR/mod}"
+export DEVKITXSH_CONFIG_DIR="${DEVKITXSH_CONFIG_DIR:-$HOME/.config/devkitxsh}"
+export DEVKITXSH_CONFIG_FILE="${DEVKITXSH_CONFIG_FILE:-$DEVKITXSH_CONFIG_DIR/config.sh}"
 
-# 1. Prerequisiti: controlla bash, curl, git, etc
-function check_prerequisites() {
-	log_info "Checking prerequisites..."
+SHELL_RC_FILE=""
 
-	for cmd in bash curl git; do
-		if ! command -v "$cmd" &>/dev/null; then
-			log_error "Required command '$cmd' is missing. Please install it and retry."
-			exit 1
-		fi
-	done
-
-	log_success "All prerequisites are met."
+detect_shell_rc() {
+	if [[ "${SHELL:-}" == */zsh ]]; then
+		SHELL_RC_FILE="$HOME/.zshrc"
+	else
+		SHELL_RC_FILE="$HOME/.bashrc"
+	fi
 }
 
-# 2. Installa Node.js tramite NVM (se non presente)
-function install_node_nvm() {
-	if command -v node &>/dev/null; then
-		log_info "Node.js is already installed."
-	else
-		log_info "Node.js not found. Installing NVM and Node.js..."
+# Create config files
+bootstrap_config() {
+	mkdir -p "$DEVKITXSH_CONFIG_DIR"
+	touch "$DEVKITXSH_CONFIG_DIR/installed_mod.sh"
+	cat >"$DEVKITXSH_CONFIG_FILE" <<EOF
+# DevKitXSH config
+export DEVKITXSH_DIR="$DEVKITXSH_DIR"
+export DEVKITXSH_MOD_DIR="$DEVKITXSH_MOD_DIR"
+export DEVKITXSH_CONFIG_DIR="$DEVKITXSH_CONFIG_DIR"
+export DEVKITXSH_CONFIG_FILE="$DEVKITXSH_CONFIG_FILE"
 
-		# Installa NVM
-		if [ ! -d "$HOME/.nvm" ]; then
-			curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-		fi
+# Load installed modules
+source "\$DEVKITXSH_CONFIG_DIR/installed_mod.sh"
+EOF
 
-		# Source NVM
-		export NVM_DIR="$HOME/.nvm"
+	log_success "Config initialized at $DEVKITXSH_CONFIG_FILE"
+}
+
+# Source loader function
+load_module_loader() {
+	local loader_file="$DEVKITXSH_DIR/lib/module-loader.sh"
+	if [[ -f "$loader_file" ]]; then
 		# shellcheck source=/dev/null
-		[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-		# Installa Node LTS
-		nvm install --lts
-		nvm use --lts
-
-		log_success "Node.js and NVM installed."
-	fi
-}
-
-# 3. Installa pnpm (se non presente)
-function install_pnpm() {
-	if command -v pnpm &>/dev/null; then
-		log_info "pnpm is already installed."
+		source "$loader_file"
+		log_success "Module loader sourced"
 	else
-		log_info "Installing pnpm globally via npm..."
-		npm install -g pnpm
-		log_success "pnpm installed."
+		log_error "Module loader not found at $loader_file"
+		exit 1
 	fi
 }
 
-# 4. Esegui bootstrap CLI shell temporaneo (solo se necessario)
-function run_shell_bootstrap() {
-	if [ -f "$CLI_SH_DISPATCH" ]; then
-		log_info "Running shell bootstrap (bin/cli-sh)..."
-		bash "$CLI_SH_DISPATCH" bootstrap
-		log_success "Shell bootstrap completed."
+# Shell integration
+setup_shell_exports() {
+	detect_shell_rc
+
+	if grep -q "DEVKITXSH_DIR=" "$SHELL_RC_FILE"; then
+		log_info "Shell already configured. Skipping shell export."
+		return
+	fi
+
+	cat >>"$SHELL_RC_FILE" <<EOF
+
+# >>> DevKitXSH environment >>>
+export DEVKITXSH_DIR="$DEVKITXSH_DIR"
+export DEVKITXSH_MOD_DIR="$DEVKITXSH_MOD_DIR"
+export DEVKITXSH_CONFIG_DIR="$DEVKITXSH_CONFIG_DIR"
+export DEVKITXSH_CONFIG_FILE="$DEVKITXSH_CONFIG_FILE"
+[[ -f "\$DEVKITXSH_CONFIG_FILE" ]] && source "\$DEVKITXSH_CONFIG_FILE"
+# <<< DevKitXSH environment <<<
+EOF
+
+	log_success "Shell exports added to $SHELL_RC_FILE"
+
+	# Apply changes to current session
+	# shellcheck disable=SC1090
+	source "$SHELL_RC_FILE"
+}
+
+# Install CLI launcher
+install_executable() {
+	local bin_path="$HOME/.local/bin"
+	local target="$bin_path/devkitx"
+
+	mkdir -p "$bin_path"
+	cp "$DEVKITXSH_DIR/bin/devkitx.sh" "$target"
+	chmod +x "$target"
+
+	if ! grep -q "$bin_path" <<<"$PATH"; then
+		log_warn "$bin_path is not in PATH. Adding to shell profile."
+		printf "export PATH=\"%s:\$PATH\"\n" "$bin_path" >>"$SHELL_RC_FILE"
+
+		# shellcheck disable=SC1090
+		source "$SHELL_RC_FILE"
+	fi
+
+	log_success "Executable installed as: devkitx"
+}
+
+# 📦 Install logx module
+install_logx_module() {
+	if ! grep -q "mod_load logx" "$DEVKITXSH_CONFIG_DIR/installed_mod.sh"; then
+		printf 'mod_load logx\n' >>"$DEVKITXSH_CONFIG_DIR/installed_mod.sh"
+		log_success "logx module registered"
 	else
-		log_info "Shell bootstrap script not found, skipping."
+		log_info "logx already present in installed mods"
 	fi
 }
 
-# 5. Installa o aggiorna CLI TypeScript (nx monorepo)
-function install_cli_ts() {
-	log_info "Installing/updating DevKitX CLI (TypeScript)..."
+# Main
+main() {
+	log_info "Starting DevKitXSH installer..."
 
-	cd "$ROOT_DIR"
+	bootstrap_config
+	load_module_loader
+	setup_shell_exports
+	install_executable
+	install_logx_module
 
-	# Usa pnpm per installare dipendenze
-	pnpm install
-
-	# Build CLI TS con Nx o direttamente con tsc (dipende da configurazione)
-	pnpm nx build devkitx
-
-	log_success "DevKitX CLI installed and built."
-}
-
-# Main orchestration
-function main() {
-	log_info "Starting DevKitX bootstrap installation..."
-
-	check_prerequisites
-	install_node_nvm
-	install_pnpm
-	run_shell_bootstrap
-	install_cli_ts
-
-	log_success "DevKitX bootstrap completed successfully!"
-	echo
-	echo "You can now run the CLI using:"
-	echo "  pnpm nx run devkitx:serve"
-	echo "or after global install"
-	echo "  devkitx"
+	log_success "DevKitXSH installation complete 🎉"
+	printf "\nRun \`devkitx --help\` to get started.\n"
 }
 
 main "$@"
