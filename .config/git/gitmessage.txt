@@ -1,0 +1,46 @@
+# Commit Type (use one of these prefixes)
+# feat:     A new feature
+# fix:      A bug fix
+# docs:     Documentation only changes
+# style:    Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+# refactor: A code change that neither fixes a bug nor adds a feature
+# perf:     A code change that improves performance
+# test:     Adding missing tests or correcting existing tests
+# chore:    Changes to the build process or auxiliary tools/libraries such as documentation generation
+
+# Emoji guide (optional, for clarity)
+# 🚀 feat
+# 🐛 fix
+# 📝 docs
+# 💄 style
+# 🔨 refactor
+# ⚡ perf
+# ✅ test
+# 🔧 chore
+
+# ------------------------------
+# Subject line (max 72 chars)
+# Use present tense. No period at the end.
+# Example: feat: add user authentication module
+
+# ------------------------------
+# Description (optional)
+# Provide a detailed explanation of the change.
+# Explain why the change was necessary and what it does.
+# Use bullet points if needed.
+
+# ------------------------------
+# Related issues / PRs (optional)
+# Link any related GitHub issues or pull requests.
+# Example: Fixes #123, relates to #456
+
+# ------------------------------
+# Example:
+
+# 🚀 feat: add main devkitx loader and logx module installer
+# - Introduce `bin/devkitx.sh` as the central CLI entry point for DevkitX
+# - Implement global flag parsing for quiet and plain modes
+# - Add support for modular installation of logging modules
+# - Provide standardized emoji-based logging functions
+
+# Fixes #789

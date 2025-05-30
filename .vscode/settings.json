@@ -1,10 +1,6 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
-  "[go]": {
-    "editor.defaultFormatter": "golang.go"
-  },
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "editor.rulers": [100],
@@ -54,6 +50,13 @@
     "editor.wordWrap": "on",
     "files.trimTrailingWhitespace": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "markdownlint.config": {
+    "MD013": false,
+    "ignore": ["**/CHANGELOG.md", "**/*gitmessage*"]
+  },
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
   },
   "files.exclude": {
     "**/.git": true,

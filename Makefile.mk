@@ -20,21 +20,21 @@ set-global-commit-template:
 
 @printf "ℹ️  INFO: Checking if the template file exists...\n"
 @if [ ! -f "$(GIT_MESSAGE_FILE_ABSOLUTE)" ]; then \
-	printf "❌ ERROR: Commit template file not found at %s\n" "$(GIT_MESSAGE_FILE_ABSOLUTE)"; \
-	printf "❌ ERROR: Please ensure the file exists and the path is correct relative to the Makefile.\n"; \
-	exit 1; \
+	$(printf "❌ ERROR: Commit template file not found at %s\n" "$(GIT_MESSAGE_FILE_ABSOLUTE)"); \
+	$(printf "❌ ERROR: Please ensure the file exists and the path is correct relative to the Makefile.\n"); \
+	$(exit 1); \
 fi
 @printf "✅ INFO: Template file found.\n\n"
 
 @printf "ℹ️  INFO: Setting global Git commit template...\n"
 @git config --global commit.template "$(GIT_MESSAGE_FILE_ABSOLUTE)"
 @if [ $$? -eq 0 ]; then \
-	printf "✅ SUCCESS: Global Git commit template has been set to: %s\n" "$(GIT_MESSAGE_FILE_ABSOLUTE)"; \
-	printf "ℹ️  INFO: You can verify this by running: git config --global commit.template\n"; \
-	printf "ℹ️  INFO: Alternatively, check your global .gitconfig file (usually located at ~/.gitconfig).\n"; \
+	$(printf "✅ SUCCESS: Global Git commit template has been set to: %s\n" "$(GIT_MESSAGE_FILE_ABSOLUTE)"); \
+	$(printf "ℹ️  INFO: You can verify this by running: git config --global commit.template\n"); \
+	$(printf "ℹ️  INFO: Alternatively, check your global .gitconfig file (usually located at ~/.gitconfig).\n"); \
 else \
-	printf "❌ ERROR: Failed to set global Git commit template. Please check your Git installation and permissions.\n"; \
-	exit 1; \
+	$(printf "❌ ERROR: Failed to set global Git commit template. Please check your Git installation and permissions.\n"); \
+	$(exit 1); \
 fi
 
 # Phony target to ensure the recipe for 'set-global-commit-template' always runs,
