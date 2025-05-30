@@ -16,20 +16,27 @@ set -euo pipefail
 #   --plain       Disable emoji output in messages
 #
 # Environment Variables:
-#   DEVKITX_DIR     Path where devkitx gets installed (default: ~/.devkitx)
 #   DEVKITXSH_DIR   Path where devkitxsh gets installed (default: ~/.devkitxsh)
+#   DEVKITX_BRANCH  Git branch/tag to checkout (default: main)
+#   DEVKITX_REPO_URL Git repository URL (default: https://github.com/ctrlmaniac/devkitx.git)
 
-# Paths
+# Color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+ORANGE='\033[0;33m'
+NC='\033[0m' # No Color
+
+log_info() { echo -e "${YELLOW}[INFO]${NC} $*"; }
+log_success() { echo -e "${GREEN}[OK]${NC} $*"; }
+log_warn() { echo -e "${ORANGE}[WARN]${NC} $*"; }
+log_error() { echo -e "${RED}[ERR]${NC} $*" >&2; }
+
+# Default variables
 DEVKITXSH_DIR="${DEVKITXSH_DIR:-$HOME/.devkitxsh}"
-DEVKITXSH_DIR="$(printf '%s\n' "$(realpath "$DEVKITXSH_DIR" 2>/dev/null || echo "$DEVKITXSH_DIR")")"
-
-# Repository config
+DEVKITXSH_DIR="$(realpath "$DEVKITXSH_DIR" 2>/dev/null || echo "$DEVKITXSH_DIR")"
 DEVKITX_BRANCH="${DEVKITX_BRANCH:-main}"
 DEVKITX_REPO_URL="${DEVKITX_REPO_URL:-https://github.com/ctrlmaniac/devkitx.git}"
-DEVKITX_BRANCH="main"
-
-# QUIET=false
-# PLAIN=false
 
 print_banner() {
 	cat <<'EOF'
@@ -45,57 +52,36 @@ print_banner() {
 EOF
 }
 
-# while (("$#")); do
-# 	case "$1" in
-# 	--quiet | -q)
-# 		QUIET=true
-# 		shift
-# 		;;
-# 	--plain)
-# 		PLAIN=true
-# 		shift
-# 		;;
-# 	*)
-# 		log_error "Unknown option: $1"
-# 		exit 1
-# 		;;
-# 	esac
-# done
-
-# Check for sudo privileges
 require_sudo() {
 	if sudo -v >/dev/null 2>&1; then
+		log_success "Sudo privileges confirmed."
 		return 0
 	fi
 
-	printf "[WARN] Sudo privileges are required. Attempting to gain privileges..."
+	log_warn "Sudo privileges are required. Attempting to gain privileges..."
 
-	if command -v sudo >/dev/null 2>&1; then
-		if sudo; then
-			if sudo -v >/dev/null 2>&1; then
-				printf "[OK] Sudo privileges granted.\n"
-				return 0
-			fi
-		fi
+	if command -v sudo >/dev/null 2>&1 && sudo -v; then
+		log_success "Sudo privileges granted."
+		return 0
 	fi
 
-	printf "[ERROR] Failed to obtain sudo privileges.\n"
-	printf "	    Please log in as a user with sudo rights and try again.\n" >&2
+	log_error "Failed to obtain sudo privileges."
+	log_error "Please run as a user with sudo rights and try again."
 	exit 1
 }
 
 download_devkitxsh() {
-	printf "\n[INFO] Downloading DevKitXsh to: %s...\n\n" "$DEVKITXSH_DIR"
+	log_info "Preparing to download DevKitXsh into: $DEVKITXSH_DIR"
 
 	if [[ -d "$DEVKITXSH_DIR" ]]; then
-		printf "[INFO] DevKitXsh already installed at %s\n" "$DEVKITXSH_DIR"
+		log_warn "DevKitXsh already installed at $DEVKITXSH_DIR. Skipping clone."
 		return 0
 	fi
 
-	printf "[INFO] Cloning DevKitXsh from GitHub from %s...\n" "$DEVKITX_REPO_URL"
+	log_info "Cloning DevKitXsh from $DEVKITX_REPO_URL (branch: $DEVKITX_BRANCH)..."
 
 	mkdir -p "$DEVKITXSH_DIR"
-	git init "$DEVKITXSH_DIR" >/dev/null
+	git init "$DEVKITXSH_DIR" >/dev/null 2>&1
 	cd "$DEVKITXSH_DIR"
 
 	git remote add origin "$DEVKITX_REPO_URL"
@@ -103,34 +89,30 @@ download_devkitxsh() {
 	printf "%s\n" "devkitxsh/*" >.git/info/sparse-checkout
 	git pull origin "$DEVKITX_BRANCH"
 
-	# Remove Git tracking to avoid accidental commits
+	# Clean up .git to avoid accidental commits
 	rm -rf .git
 
-	printf "[OK] DevKitXsh cloned successfully to: %s\n\n" "$DEVKITXSH_DIR"
+	log_success "DevKitXsh cloned successfully."
 }
 
 install_devkitxsh() {
-	printf "[STEP] Installing DevKitXsh...\n"
+	log_info "Starting DevKitXsh installation..."
 
-	if [ -f "$DEVKITXSH_DIR/install.sh" ]; then
+	if [[ -f "$DEVKITXSH_DIR/install.sh" ]]; then
 		bash "$DEVKITXSH_DIR/install.sh"
+		log_success "DevKitXsh installed successfully."
 	else
-		printf "[ERROR] Unable to install DevKitXsh."
-		printf "		Aborting...\n"
+		log_error "Installation script not found in $DEVKITXSH_DIR."
+		log_error "Aborting installation."
 		exit 1
 	fi
-
-	printf "\n"
 }
 
 main() {
 	print_banner
-
 	require_sudo
-
 	download_devkitxsh
-
 	install_devkitxsh
 }
 
-main
+main "$@"
