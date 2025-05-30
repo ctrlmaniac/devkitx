@@ -51,10 +51,7 @@
     "files.trimTrailingWhitespace": false,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "markdownlint.config": {
-    "MD013": false,
-    "ignore": ["**/CHANGELOG.md", "**/*gitmessage*"]
-  },
+  "markdownlint.configFile": ".config/.markdownlint.json",
   "[go]": {
     "editor.defaultFormatter": "golang.go"
   },
@@ -93,5 +90,8 @@
     "**/dist/": true,
     "**/build/": true,
     "/mnt": true
+  },
+  "files.associations": {
+    ".config/git/gitmessage": "plaintext"
   }
 }
