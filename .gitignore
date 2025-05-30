@@ -1,0 +1,63 @@
+# Ignore the specific Zone.Identifier file
+utils.sh:Zone.Identifier
+
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin folder
+$RECYCLE.BIN/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# Windows shortcuts
+*.lnk
+
+# Windows specifc backup files and folders
+*.bak
+*.tmp
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*:Zone.Identifier
+
+# IDEs and editors #
+####################
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Visual Studio
+*.suo
+*.user
+*.sln.docstates
+*.vspscc
+*.vssscc
+*.vssettings
+# Visual Studio 2015 cache/options directory
+.vs/
+
+# Windows image file caches
+ehthumbs.db
+Thumbs.db

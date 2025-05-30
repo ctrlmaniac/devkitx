@@ -1,28 +1,22 @@
 {
-  // --- Impostazioni Generali dell'Editor ---
-  "editor.formatOnSave": true, // Formatta il file al salvataggio
-  "files.eol": "\n", // Assicura che VS Code usi LF per i nuovi file (in linea con .editorconfig)
-  "files.insertFinalNewline": true, // Come da .editorconfig
-  "files.trimTrailingWhitespace": true, // Come da .editorconfig
-  "editor.rulers": [100], // Righello visuale per la lunghezza delle linee
-  "workbench.editor.enablePreview": false, // Disabilita l'anteprima con un solo clic
-  "explorer.compactFolders": false, // Mostra la struttura delle cartelle in modo meno compatto
-  "breadcrumbs.enabled": true, // Abilita breadcrumbs per la navigazione
-
-  // --- Impostazioni Specifiche per Linguaggio (Formattatori e Linter) ---
-
-  // Script di Shell (bash, sh, zsh)
-  // `shfmt` è in tools.go. `shellcheck` è un'estensione raccomandata.
-  "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format" // Questa estensione usa shfmt
-    // tabSize e insertSpaces sono gestiti da .editorconfig per i file shell
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
   },
-  "shellformat.path": "shfmt", // Indica a shell-format di usare il binario shfmt (dovrebbe essere nel PATH se installato con `go install`)
-  "shellcheck.executablePath": "shellcheck", // Presumendo che shellcheck sia nel PATH (es. `apt install shellcheck`)
-  "shellcheck.run": "onSave", // Esegui shellcheck al salvataggio
-
-  // JavaScript, TypeScript, JSON, File Web
-  // Prettier è una scelta comune. Le impostazioni di indentazione da .editorconfig saranno rispettate.
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "editor.rulers": [100],
+  "workbench.editor.enablePreview": false,
+  "explorer.compactFolders": false,
+  "breadcrumbs.enabled": true,
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "shellformat.path": "shfmt",
+  "shellcheck.executablePath": "shellcheck",
+  "shellcheck.run": "onSave",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -54,18 +48,13 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[yaml]": {
-    "editor.defaultFormatter": "redhat.vscode-yaml" // Ottimo supporto per YAML
-    // tabSize e insertSpaces sono gestiti da .editorconfig per YAML
+    "editor.defaultFormatter": "redhat.vscode-yaml"
   },
-
-  // Markdown
   "[markdown]": {
-    "editor.wordWrap": "on", // Abilita il word wrap
-    "files.trimTrailingWhitespace": false, // Sovrascrive l'impostazione globale per MD, come da .editorconfig
-    "editor.defaultFormatter": "esbenp.prettier-vscode" // Usa Prettier per formattare Markdown
+    "editor.wordWrap": "on",
+    "files.trimTrailingWhitespace": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-
-  // --- Esclusioni per File e Ricerca (Comuni per ambienti di sviluppo) ---
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
@@ -100,6 +89,6 @@
     "**/.cache/": true,
     "**/dist/": true,
     "**/build/": true,
-    "/mnt"
+    "/mnt": true
   }
 }
