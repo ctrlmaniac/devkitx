@@ -30,21 +30,17 @@ set-global-commit-template:
 		exit 1; \
 	fi
 
-.PHONY: stage-copy-diff
-stage-copy-diff:
-	@printf "ℹ️  INFO: Staging all changes...\n"
-	@git add .
-	@printf "✅ SUCCESS: All changes staged.\n\n"
-	@printf "ℹ️  INFO: Generating staged diff...\n"
-	@git diff --staged
-	@printf "\nℹ️  INFO: Attempting to copy staged diff to clipboard...\n"
+.PHONY: copy-staged
+copy-staged:
 	@if command -v xclip > /dev/null; then \
 		git diff --staged | xclip -selection clipboard; \
 		if [ $$? -eq 0 ]; then \
-			printf "✅ SUCCESS: Staged diff copied to clipboard using xclip.\n"; \
+			printf "✅ SUCCESS: Staged diff copied to clipboard.\n"; \
 		else \
-			printf "⚠️  WARNING: Failed to copy to clipboard using xclip, though xclip seems available. Staged diff printed above.\n"; \
+			printf "❌ ERROR: Failed to copy staged diff to clipboard.\n"; \
+			exit 1; \
 		fi; \
 	else \
-		printf "⚠️  WARNING: xclip command not found. Staged diff printed above. Please install xclip (e.g., 'sudo apt install xclip') or copy manually.\n"; \
+		printf "❌ ERROR: 'xclip' not found. Please install xclip to enable clipboard copy.\n"; \
+		exit 1; \
 	fi
