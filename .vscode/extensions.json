@@ -1,0 +1,13 @@
+{
+    "recommendations": [
+        "timonwong.shellcheck",
+        "rpinski.shebang-snippets",
+        "golang.go",
+        "editorconfig.editorconfig",
+        "esbenp.prettier-vscode", // Formattatore per JS/TS/JSON/HTML/CSS etc.
+        "foxundermoon.shell-format", // Formattatore per script di shell (usa shfmt)
+        "redhat.vscode-yaml", // Supporto e formattazione YAML
+        "DavidAnson.vscode-markdownlint", // Linter per Markdown
+        "AlanWalk.markdown-toc" // Per generare e aggiornare sommari (Table of Contents)
+    ]
+}
