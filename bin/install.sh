@@ -16,21 +16,13 @@ set -euo pipefail
 #   --plain       Disable emoji output in messages
 #
 # Environment Variables:
-#   DEVKITXSH_DIR   Path where devkitxsh gets installed (default: ~/.devkitxsh)
-#   DEVKITX_BRANCH  Git branch/tag to checkout (default: main)
+#   DEVKITXSH_DIR    Path where devkitxsh gets installed (default: ~/.devkitxsh)
+#   DEVKITX_BRANCH   Git branch/tag to checkout (default: main)
 #   DEVKITX_REPO_URL Git repository URL (default: https://github.com/ctrlmaniac/devkitx.git)
 
-# Color codes
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-ORANGE='\033[0;33m'
-NC='\033[0m' # No Color
-
-log_info() { echo -e "${YELLOW}[INFO]${NC} $*"; }
-log_success() { echo -e "${GREEN}[OK]${NC} $*"; }
-log_warn() { echo -e "${ORANGE}[WARN]${NC} $*"; }
-log_error() { echo -e "${RED}[ERR]${NC} $*" >&2; }
+# Load logger utils
+source "$(dirname "$0")/../devkitxsh/utils/logger.sh"
+logger_init "$@"
 
 # Default variables
 DEVKITXSH_DIR="${DEVKITXSH_DIR:-$HOME/.devkitxsh}"
@@ -41,13 +33,13 @@ DEVKITX_REPO_URL="${DEVKITX_REPO_URL:-https://github.com/ctrlmaniac/devkitx.git}
 print_banner() {
 	cat <<'EOF'
 
- ▄▄▄▄▄                         ▄▄   ▄▄▄     ██               ▄▄▄  ▄▄▄            ▄▄
- ██▀▀▀██                       ██  ██▀      ▀▀       ██       ██▄▄██             ██
- ██    ██   ▄████▄   ██▄  ▄██  ██▄██      ████     ███████     ████    ▄▄█████▄  ██▄████▄
- ██    ██  ██▄▄▄▄██   ██  ██   █████        ██       ██         ██     ██▄▄▄▄ ▀  ██▀   ██
- ██    ██  ██▀▀▀▀▀▀   ▀█▄▄█▀   ██  ██▄      ██       ██        ████     ▀▀▀▀██▄  ██    ██
- ██▄▄▄██   ▀██▄▄▄▄█    ████    ██   ██▄  ▄▄▄██▄▄▄    ██▄▄▄    ██  ██   █▄▄▄▄▄██  ██    ██
- ▀▀▀▀▀       ▀▀▀▀▀      ▀▀     ▀▀    ▀▀  ▀▀▀▀▀▀▀▀     ▀▀▀▀   ▀▀▀  ▀▀▀   ▀▀▀▀▀▀   ▀▀    ▀▀
+ ▄▄▄▄▄                         ▄▄   ▄▄▄     ██               ▄▄▄  ▄▄▄
+ ██▀▀▀██                       ██  ██▀      ▀▀       ██       ██▄▄██
+ ██    ██   ▄████▄   ██▄  ▄██  ██▄██      ████     ███████     ████
+ ██    ██  ██▄▄▄▄██   ██  ██   █████        ██       ██         ██
+ ██    ██  ██▀▀▀▀▀▀   ▀█▄▄█▀   ██  ██▄      ██       ██        ████
+ ██▄▄▄██   ▀██▄▄▄▄█    ████    ██   ██▄  ▄▄▄██▄▄▄    ██▄▄▄    ██  ██
+ ▀▀▀▀▀       ▀▀▀▀▀      ▀▀     ▀▀    ▀▀  ▀▀▀▀▀▀▀▀     ▀▀▀▀   ▀▀▀  ▀▀▀
 
 EOF
 }
