@@ -24,7 +24,7 @@ logx::help::error() {
 	local quiet="${LOGX_QUIET:-false}"
 	local plain="${LOGX_PLAIN:-false}"
 	local disable_emoji="$plain" # Flag to disable emoji output
-	[[ "${DEVKITX_EMOJI:-true}" == "false" ]] && disable_emoji=true
+	[ "${DEVKITX_EMOJI:-true}" = "false" ] && disable_emoji=true
 
 	$quiet && return 0
 
