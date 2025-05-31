@@ -1,85 +1,67 @@
 #!/usr/bin/env bash
-# logx.sh — main CLI entrypoint for logx
+set -euo pipefail
 
-LOGX_DIR="${LOGX_DIR:-$HOME/.devkitx/mod/logx}"
-LOGX_PLAIN=${LOGX_PLAIN:-false}
-LOGX_QUIET=${LOGX_QUIET:-false}
+# File: devkitxsh/mod/logx/logx.sh
+# Description:
+#   Modulo di logging per DevKitXsh con supporto a livelli di log, output silenziato e disabilitazione colori/emoji.
+#
+# Usage:
+#   source logx.sh
+#
+# Variables:
+#   LOGX_QUIET  - se impostata a 1 disabilita output informativo
+#   LOGX_PLAIN  - se impostata a 1 disabilita colori ed emoji
+#
+# Functions:
+#   logx_info "Messaggio"
+#   logx_success "Messaggio"
+#   logx_warn "Messaggio"
+#   logx_error "Messaggio"
 
-# Source utils (if available)
-[[ -f "$LOGX_DIR/utils.sh" ]] && . "$LOGX_DIR/utils.sh"
+# Codici colore ANSI
+readonly LOGX_COLOR_RED='\033[0;31m'
+readonly LOGX_COLOR_GREEN='\033[0;32m'
+readonly LOGX_COLOR_YELLOW='\033[1;33m'
+readonly LOGX_COLOR_ORANGE='\033[0;33m'
+readonly LOGX_COLOR_RESET='\033[0m'
 
-print_logx_help() {
-	if [[ -f "$LOGX_DIR/help/help.sh" ]]; then
-		. "$LOGX_DIR/help/help.sh"
-		logx::help::main
+# Emoji (disabilitabili con --plain)
+readonly LOGX_EMOJI_INFO="ℹ️ "
+readonly LOGX_EMOJI_SUCCESS="✅ "
+readonly LOGX_EMOJI_WARN="⚠️ "
+readonly LOGX_EMOJI_ERROR="❌ "
+
+# Funzione interna per gestire output log con colori e emoji
+_logx_print() {
+	local level="$1"
+	local color="$2"
+	local emoji="$3"
+	local message="$4"
+
+	# Se quiet, esci senza stampare
+	[[ "${LOGX_QUIET:-0}" == "1" ]] && return 0
+
+	# Se plain, rimuovi emoji e colori
+	if [[ "${LOGX_PLAIN:-0}" == "1" ]]; then
+		printf '%s %s\n' "[$level]" "$message"
 	else
-		echo "Help module missing"
+		# Usare printf con placeholder per sicurezza SC2059
+		printf '%b %b%s%b\n' "$emoji" "$color" "[$level] $message" "$LOGX_COLOR_RESET"
 	fi
 }
 
-main() {
-	local cmd=""
-	local args=()
-	local exit_code=1
-	local abort=false
-
-	while [[ $# -gt 0 ]]; do
-		case "$1" in
-		--success | success | -ok)
-			cmd="success"
-			shift
-			;;
-		--warn | warn | -w)
-			cmd="warn"
-			shift
-			;;
-		--error | error | -e)
-			cmd="error"
-			shift
-			;;
-		-q | --quiet)
-			LOGX_QUIET=true
-			shift
-			;;
-		--plain)
-			LOGX_PLAIN=true
-			shift
-			;;
-		--abort)
-			abort=true
-			shift
-			;;
-		--exit-code)
-			exit_code="${2:-1}"
-			shift 2
-			;;
-		-h | --help | help)
-			print_logx_help
-			return 0
-			;;
-		*)
-			args+=("$1")
-			shift
-			;;
-		esac
-	done
-
-	# fallback if no command provided
-	[[ -z "$cmd" ]] && print_logx_help && return 0
-
-	# Dispatch to the right script
-	local cmd_script="$LOGX_DIR/logx-${cmd}.sh"
-	if [[ -f "$cmd_script" ]]; then
-		. "$cmd_script"
-		"logx::${cmd}" "${args[@]}"
-	else
-		echo "Unknown command: $cmd"
-		print_logx_help
-		return 1
-	fi
-
-	# Handle --abort if set
-	$abort && exit "$exit_code"
+logx_info() {
+	_logx_print "INFO" "$LOGX_COLOR_YELLOW" "$LOGX_EMOJI_INFO" "$*"
 }
 
-main "$@"
+logx_success() {
+	_logx_print "OK" "$LOGX_COLOR_GREEN" "$LOGX_EMOJI_SUCCESS" "$*"
+}
+
+logx_warn() {
+	_logx_print "WARN" "$LOGX_COLOR_ORANGE" "$LOGX_EMOJI_WARN" "$*"
+}
+
+logx_error() {
+	_logx_print "ERR" "$LOGX_COLOR_RED" "$LOGX_EMOJI_ERROR" "$*" >&2
+}
