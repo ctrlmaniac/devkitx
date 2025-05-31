@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
-# install.sh — Installer per il mod logx di DevKitXSH
+# File: devkitxsh/mod/logx/install.sh
+# Location: $DEVKITX_REPO/devkitxsh/mod/logx/install.sh
+#
+# Description:
+#   Installer script for the 'logx' module of DevKitXsh.
+#   This script copies the 'logx' module files into the appropriate
+#   DevKitXsh modules directory. It also ensures that the 'mod-loader.sh'
+#   utility is present in the DevKitXsh library directory, downloading it if necessary.
+#
+# Usage:
+#   bash devkitxsh/mod/logx/install.sh
+#
+# Environment Variables:
+#   DEVKITXSH_DIR       (Required) Path to the main DevKitXsh installation directory.
+#   DEVKITXSH_MOD_DIR   Path to the DevKitXsh modules directory (default: $DEVKITXSH_DIR/mods).
+#   DEVKITXSH_LIB_DIR   Path to the DevKitXsh library directory (default: $DEVKITXSH_DIR/lib).
 
 set -euo pipefail
 
@@ -18,31 +33,31 @@ MOD_FILES=(
 	help/logx-warn.sh
 )
 
-: "${DEVKITXSH_DIR:?❌ Variabile DEVKITXSH_DIR non definita}"
+: "${DEVKITXSH_DIR:?❌ DEVKITXSH_DIR variable not set}"
 : "${DEVKITXSH_MOD_DIR:="${DEVKITXSH_DIR}/mods"}"
 : "${DEVKITXSH_LIB_DIR:="${DEVKITXSH_DIR}/lib"}"
 
 LOADER_URL="https://raw.githubusercontent.com/ctrlmaniac/devkitx/refs/heads/main/devkitxsh/lib/mod-loader.sh"
 LOADER_FILE="${DEVKITXSH_LIB_DIR}/mod-loader.sh"
 
-log() { printf "%s\n" "$@"; }
-err() { printf "❌ %s\n" "$@" >&2; }
-ok() { printf "✅ %s\n" "$@"; }
-warn() { printf "⚠️  %s\n" "$@" >&2; }
+log_msg() { printf "%s\n" "$@"; }          # Renamed to avoid conflict if sourcing a global logger
+err_msg() { printf "❌ %s\n" "$@" >&2; }    # Renamed
+ok_msg() { printf "✅ %s\n" "$@"; }         # Renamed
+warn_msg() { printf "⚠️  %s\n" "$@" >&2; } # Renamed
 
 main() {
-	log "🔧 Installazione del mod '${MOD_NAME}'..."
+	log_msg "🔧 Installing module '${MOD_NAME}'..."
 
 	if [[ ! -f "$LOADER_FILE" ]]; then
-		warn "mod-loader.sh non trovato. Lo installerò automaticamente..."
+		warn_msg "mod-loader.sh not found. Will install it automatically..."
 		mkdir -p "$DEVKITXSH_LIB_DIR"
 		curl -fsSL "$LOADER_URL" -o "$LOADER_FILE" || {
-			err "Impossibile scaricare il mod loader da: $LOADER_URL"
+			err_msg "Failed to download mod loader from: $LOADER_URL"
 			exit 1
 		}
-		ok "mod-loader.sh installato in $LOADER_FILE"
+		ok_msg "mod-loader.sh installed in $LOADER_FILE"
 	else
-		ok "mod-loader.sh già presente"
+		ok_msg "mod-loader.sh already present"
 	fi
 
 	MOD_TARGET_DIR="$DEVKITXSH_MOD_DIR/${MOD_NAME}"
@@ -53,18 +68,18 @@ main() {
 		dst="$MOD_TARGET_DIR/$file"
 
 		if [[ ! -f "$src" ]]; then
-			warn "File mancante: $src (ignorato)"
+			warn_msg "Missing file: $src (skipped)"
 			continue
 		fi
 
 		mkdir -p "$(dirname "$dst")"
 		cp "$src" "$dst"
-		ok "File copiato: $file"
+		ok_msg "File copied: $file"
 	done
 
-	ok "Mod '${MOD_NAME}' installato con successo 🎉"
-	echo ""
-	log "ℹ️  Ora puoi caricare il mod con: mod_load ${MOD_NAME}"
+	ok_msg "Module '${MOD_NAME}' installed successfully 🎉"
+	printf ""
+	log_msg "ℹ️  You can now load the module with: mod_load ${MOD_NAME}"
 }
 
 main "$@"

@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
 # File: bin/install.sh
 # Location: $DEVKITX_REPO/bin/install.sh
 #
@@ -19,6 +17,8 @@ set -euo pipefail
 #   DEVKITXSH_DIR    Path where devkitxsh gets installed (default: ~/.devkitxsh)
 #   DEVKITX_BRANCH   Git branch/tag to checkout (default: main)
 #   DEVKITX_REPO_URL Git repository URL (default: https://github.com/ctrlmaniac/devkitx.git)
+
+set -euo pipefail
 
 # Load logger utils
 source "$(dirname "$0")/../devkitxsh/utils/logger.sh"
