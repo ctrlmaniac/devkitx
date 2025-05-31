@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# logx-error.sh - Funzione per messaggi di errore (logx)
+# logx-warn.sh - Funzione per messaggi di avviso (logx)
 
 set -euo pipefail
 
-logx::error() {
+logx::warn() {
 	local msg="$*"
 
 	[[ "${LOGX_QUIET:-false}" == "true" ]] && return 0
 
-	local emoji="❌"
+	local emoji="⚠️"
 	if [[ "${LOGX_PLAIN:-false}" == "true" ]] || [[ "${DEVKITX_EMOJI:-true}" == "false" ]]; then
 		emoji=""
 	fi
 
 	if [[ -n "$emoji" ]]; then
-		printf "%b logx error: %s\n" "$emoji" "$msg"
+		printf "%b logx warn: %s\n" "$emoji" "$msg"
 	else
-		printf "logx error: %s\n" "$msg"
+		printf "logx warn: %s\n" "$msg"
 	fi
 }

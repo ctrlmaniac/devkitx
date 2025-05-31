@@ -1,23 +1,29 @@
 #!/usr/bin/env bash
-# Help for logx-error
+# help/logx-error.sh - Help per comando error di logx
 
 logx::help::error() {
-	echo ""
-	echo "❌ logx-error — Print an error message"
-	echo ""
-	echo "USAGE:"
-	echo "  logx-error [options] <message>"
-	echo ""
-	echo "OPTIONS:"
-	echo "  --plain          Disable emoji"
-	echo "  --quiet, -q      Silence all output"
-	echo "  --abort          Exit after printing"
-	echo "  --exit-code [n]  Exit with custom code (default: 1)"
-	echo "  -h, --help       Show this help"
-	echo ""
-	echo "EXAMPLES:"
-	echo "  logx-error 'Something went wrong!'"
-	echo "  logx-error --plain 'Minimal error output'"
-	echo "  logx-error --abort --exit-code 3 'Critical failure'"
-	echo ""
+	local quiet="${LOGX_QUIET:-false}"
+	local plain="${LOGX_PLAIN:-false}"
+	local emoji="$plain"
+	[[ "${DEVKITX_EMOJI:-true}" == "false" ]] && emoji=true
+
+	$quiet && return 0
+
+	local icon="❌"
+	local bullet="•"
+	local heading="🛠️"
+
+	$emoji && icon=""
+
+	printf "\n  %s logx error — Messaggi di errore\n\n" "$heading"
+	printf "USO:\n"
+	printf "  logx error [options] <messaggio>\n\n"
+	printf "OPZIONI:\n"
+	printf "  %s --plain         Disabilita emoji\n" "$bullet"
+	printf "  %s --quiet, -q     Disabilita output\n" "$bullet"
+	printf "  %s --abort         Esci dopo output\n" "$bullet"
+	printf "  %s --exit-code n   Specifica codice uscita (default 1)\n\n" "$bullet"
+	printf "ESEMPI:\n"
+	printf "  logx error 'Errore critico rilevato'\n"
+	printf "  logx error --plain 'Messaggio senza emoji'\n\n"
 }
