@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/install.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/install.sh
 #
@@ -16,11 +16,11 @@
 #   DEVKITXSH_MOD_DIR   Path to the DevKitXsh modules directory (default: $DEVKITXSH_DIR/mods).
 #   DEVKITXSH_LIB_DIR   Path to the DevKitXsh library directory (default: $DEVKITXSH_DIR/lib).
 
-set -euo pipefail
+set -eu
 
 MOD_NAME="logx"
-MOD_SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MOD_FILES=(
+MOD_SOURCE_DIR=$(cd "$(dirname -- "$0")" && pwd -P)
+MOD_FILES_STR="
 	logx.sh
 	logx-error.sh
 	logx-info.sh
@@ -31,7 +31,7 @@ MOD_FILES=(
 	help/logx-info.sh
 	help/logx-success.sh
 	help/logx-warn.sh
-)
+"
 
 : "${DEVKITXSH_DIR:?❌ DEVKITXSH_DIR variable not set}"
 : "${DEVKITXSH_MOD_DIR:="${DEVKITXSH_DIR}/mods"}"
@@ -48,7 +48,7 @@ warn_msg() { printf "⚠️  %s\n" "$@" >&2; } # Renamed
 main() {
 	log_msg "🔧 Installing module '${MOD_NAME}'..."
 
-	if [[ ! -f "$LOADER_FILE" ]]; then
+	if [ ! -f "$LOADER_FILE" ]; then
 		warn_msg "mod-loader.sh not found. Will install it automatically..."
 		mkdir -p "$DEVKITXSH_LIB_DIR"
 		curl -fsSL "$LOADER_URL" -o "$LOADER_FILE" || {
@@ -63,11 +63,11 @@ main() {
 	MOD_TARGET_DIR="$DEVKITXSH_MOD_DIR/${MOD_NAME}"
 	mkdir -p "$MOD_TARGET_DIR/help"
 
-	for file in "${MOD_FILES[@]}"; do
+	for file in $MOD_FILES_STR; do
 		src="$MOD_SOURCE_DIR/$file"
 		dst="$MOD_TARGET_DIR/$file"
 
-		if [[ ! -f "$src" ]]; then
+		if [ ! -f "$src" ]; then
 			warn_msg "Missing file: $src (skipped)"
 			continue
 		fi
@@ -78,7 +78,7 @@ main() {
 	done
 
 	ok_msg "Module '${MOD_NAME}' installed successfully 🎉"
-	printf ""
+	printf "\n"
 	log_msg "ℹ️  You can now load the module with: mod_load ${MOD_NAME}"
 }
 

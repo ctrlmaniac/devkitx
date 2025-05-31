@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/logx-info.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/logx-info.sh
 #
@@ -23,20 +23,20 @@
 #   LOGX_PLAIN      If set to "true", emoji output will be disabled for this message.
 #   DEVKITX_EMOJI   If set to "false", emoji output will be disabled globally (and for this message).
 
-set -euo pipefail
+set -eu
 
-logx::info() {
-	local msg="$*"
+logx_info() {
+	msg="$*"
 
-	[[ "${LOGX_QUIET:-false}" == "true" ]] && return 0
+	[ "${LOGX_QUIET:-false}" = "true" ] && return 0
 
-	local emoji="ℹ️"
-	if [[ "${LOGX_PLAIN:-false}" == "true" ]] || [[ "${DEVKITX_EMOJI:-true}" == "false" ]]; then
+	emoji="ℹ️"
+	if [ "${LOGX_PLAIN:-false}" = "true" ] || [ "${DEVKITX_EMOJI:-true}" = "false" ]; then
 		emoji=""
 	fi
 
-	if [[ -n "$emoji" ]]; then
-		printf "%b logx info: %s\n" "$emoji" "$msg"
+	if [ -n "$emoji" ]; then
+		printf "%s logx info: %s\n" "$emoji" "$msg"
 	else
 		printf "logx info: %s\n" "$msg"
 	fi

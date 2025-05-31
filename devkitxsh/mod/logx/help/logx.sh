@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/help/logx.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/help/logx.sh
 #
@@ -26,14 +26,20 @@
 #   DEVKITX_EMOJI   If "false", globally disables emoji in specific help output.
 
 # Source specific help command files
-source "$(dirname "${BASH_SOURCE[0]}")/logx-success.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/logx-error.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/logx-warn.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/logx-info.sh"
+# This script assumes _LOGX_MODULE_DIR is set by the sourcing script (logx.sh)
+# and points to the root of the logx module.
+# shellcheck source=./logx-success.sh
+. "$_LOGX_MODULE_DIR/help/logx-success.sh"
+# shellcheck source=./logx-error.sh
+. "$_LOGX_MODULE_DIR/help/logx-error.sh"
+# shellcheck source=./logx-warn.sh
+. "$_LOGX_MODULE_DIR/help/logx-warn.sh"
+# shellcheck source=./logx-info.sh
+. "$_LOGX_MODULE_DIR/help/logx-info.sh"
 
-logx::help() {
-	local cmd="${1:-}"
-	if [[ -z "$cmd" ]]; then
+logx_help() {
+	cmd="${1:-}"
+	if [ -z "$cmd" ]; then
 		printf "\nUsage: logx <command> [options] <message>\n"
 		printf "Commands:\n"
 		printf "  success   Success messages\n"
@@ -47,10 +53,10 @@ logx::help() {
 	fi
 
 	case "$cmd" in
-	success) logx::help::success ;;
-	error) logx::help::error ;;
-	warn) logx::help::warn ;;
-	info) logx::help::info ;;
+	success) logx_help_success ;;
+	error) logx_help_error ;;
+	warn) logx_help_warn ;;
+	info) logx_help_info ;;
 	help) printf "Help for 'logx help <subcommand>' is not implemented. Use 'logx help' for general help or 'logx help <command>' for specific command help.\n" ;;
 	*)
 		printf "Unknown command for help: %s\n" "$cmd" >&2

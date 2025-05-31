@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/logx-warn.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/logx-warn.sh
 #
@@ -23,20 +23,20 @@
 #   LOGX_PLAIN      If set to "true", emoji output will be disabled for this message.
 #   DEVKITX_EMOJI   If set to "false", emoji output will be disabled globally (and for this message).
 
-set -euo pipefail
+set -eu
 
-logx::warn() {
-	local msg="$*"
+logx_warn() {
+	msg="$*"
 
-	[[ "${LOGX_QUIET:-false}" == "true" ]] && return 0
+	[ "${LOGX_QUIET:-false}" = "true" ] && return 0
 
-	local emoji="⚠️"
-	if [[ "${LOGX_PLAIN:-false}" == "true" ]] || [[ "${DEVKITX_EMOJI:-true}" == "false" ]]; then
+	emoji="⚠️"
+	if [ "${LOGX_PLAIN:-false}" = "true" ] || [ "${DEVKITX_EMOJI:-true}" = "false" ]; then
 		emoji=""
 	fi
 
-	if [[ -n "$emoji" ]]; then
-		printf "%b logx warn: %s\n" "$emoji" "$msg" >&2
+	if [ -n "$emoji" ]; then
+		printf "%s logx warn: %s\n" "$emoji" "$msg" >&2
 	else
 		printf "logx warn: %s\n" "$msg" >&2
 	fi

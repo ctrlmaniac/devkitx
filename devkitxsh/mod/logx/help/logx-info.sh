@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/help/logx-info.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/help/logx-info.sh
 #
@@ -20,18 +20,18 @@
 #   LOGX_PLAIN      If "true", disables emoji in the help output.
 #   DEVKITX_EMOJI   If "false", globally disables emoji (and for this help output).
 
-logx::help::info() {
-	local quiet="${LOGX_QUIET:-false}"
-	local plain="${LOGX_PLAIN:-false}"
-	local disable_emoji="$plain" # Flag to disable emoji output
+logx_help_info() {
+	quiet="${LOGX_QUIET:-false}"
+	plain="${LOGX_PLAIN:-false}"
+	disable_emoji="$plain" # Flag to disable emoji output
 	[ "${DEVKITX_EMOJI:-true}" = "false" ] && disable_emoji=true
 
 	$quiet && return 0
 
-	local icon_char="ℹ️" # Specific icon for info command (currently not used in this help text's printf)
-	local bullet_char="•"
-	local heading_char="🛠️"
-	local heading_display="$heading_char"
+	# icon_char="ℹ️" # Unused
+	bullet_char="•"
+	heading_char="🛠️"
+	heading_display="$heading_char"
 
 	if $disable_emoji; then
 		# icon_char="" # If icon_char were used in printf, it would be cleared here

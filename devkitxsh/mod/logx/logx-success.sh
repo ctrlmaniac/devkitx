@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/logx-success.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/logx-success.sh
 #
@@ -23,20 +23,20 @@
 #   LOGX_PLAIN      If set to "true", emoji output will be disabled for this message.
 #   DEVKITX_EMOJI   If set to "false", emoji output will be disabled globally (and for this message).
 
-set -euo pipefail
+set -eu
 
-logx::success() {
-	local msg="$*"
+logx_success() {
+	msg="$*"
 
-	[[ "${LOGX_QUIET:-false}" == "true" ]] && return 0
+	[ "${LOGX_QUIET:-false}" = "true" ] && return 0
 
-	local emoji="✅"
-	if [[ "${LOGX_PLAIN:-false}" == "true" ]] || [[ "${DEVKITX_EMOJI:-true}" == "false" ]]; then
+	emoji="✅"
+	if [ "${LOGX_PLAIN:-false}" = "true" ] || [ "${DEVKITX_EMOJI:-true}" = "false" ]; then
 		emoji=""
 	fi
 
-	if [[ -n "$emoji" ]]; then
-		printf "%b logx success: %s\n" "$emoji" "$msg"
+	if [ -n "$emoji" ]; then
+		printf "%s logx success: %s\n" "$emoji" "$msg"
 	else
 		printf "logx success: %s\n" "$msg"
 	fi

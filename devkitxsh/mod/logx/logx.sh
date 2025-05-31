@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # File: devkitxsh/mod/logx/logx.sh
 # Location: $DEVKITX_REPO/devkitxsh/mod/logx/logx.sh
 #
@@ -28,34 +28,46 @@
 #   LOGX_PLAIN      If "true", disables emoji output in messages.
 #   DEVKITX_EMOJI   If "false", globally disables emoji output in messages.
 
-set -euo pipefail
+set -eu
+
+# Determine the directory of the logx.sh script itself.
+_LOGX_MODULE_DIR=$(cd "$(dirname -- "$0")" >/dev/null 2>&1 && pwd -P)
+if [ -z "$_LOGX_MODULE_DIR" ]; then
+	printf "Error: Could not determine module directory from '%s'\n" "$0" >&2
+	exit 1
+fi
 
 # Source module components
-source "$(dirname "${BASH_SOURCE[0]}")/logx-success.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/logx-error.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/logx-warn.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/logx-info.sh"
-source "$(dirname "${BASH_SOURCE[0]}")/help/logx.sh"
+# shellcheck source=./logx-success.sh
+. "$_LOGX_MODULE_DIR/logx-success.sh"
+# shellcheck source=./logx-error.sh
+. "$_LOGX_MODULE_DIR/logx-error.sh"
+# shellcheck source=./logx-warn.sh
+. "$_LOGX_MODULE_DIR/logx-warn.sh"
+# shellcheck source=./logx-info.sh
+. "$_LOGX_MODULE_DIR/logx-info.sh"
+# shellcheck source=./help/logx.sh
+. "$_LOGX_MODULE_DIR/help/logx.sh"
 
 print_usage() {
-	logx::help
+	logx_help
 }
 
 main() {
-	if [[ $# -eq 0 ]]; then
+	if [ "$#" -eq 0 ]; then
 		print_usage
 		exit 1
 	fi
 
-	local cmd="$1"
+	cmd="$1"
 	shift
 
 	case "$cmd" in
-	success) logx::success "$@" ;;
-	error) logx::error "$@" ;;
-	warn) logx::warn "$@" ;;
-	info) logx::info "$@" ;;
-	help) logx::help "${1:-}" ;;
+	success) logx_success "$@" ;;
+	error) logx_error "$@" ;;
+	warn) logx_warn "$@" ;;
+	info) logx_info "$@" ;;
+	help) logx_help "${1:-}" ;;
 	*)
 		printf "Unknown command: %s\n" "$cmd" >&2
 		print_usage
